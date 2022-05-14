@@ -1,8 +1,9 @@
 <template>
-  <div>
+  <div class="main">
     <h1>Teses de investimento</h1>
     <p>Este site se destina a propagar algumas teses de investimento.</p>
     <NuxtLink to="/microstrategy">Microstrategy</NuxtLink>
+    <NuxtLink to="/bolsonaro2022">Bolsonaro2022</NuxtLink>
   </div>
 </template>
 
@@ -17,3 +18,7 @@ export default Vue.extend({
   },
 })
 </script>
+
+<style>
+
+</style>

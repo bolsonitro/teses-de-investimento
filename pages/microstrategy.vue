@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="main">
     <h1>Tese de investimento em MicroStrategy</h1>
     <p>Preço de MSTR: US$ {{ microstrategyPrice }}</p>
     <div>
@@ -18,6 +18,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { Iftx, Istock } from '@/interfaces'
 export default Vue.extend({
   name: 'Microstrategy',
   data() {
@@ -30,13 +31,13 @@ export default Vue.extend({
     }
   },
   async mounted() {
-    const [mstr, bitcoin] = [
-      await this.$axios.get('http://127.0.0.1:3001/mstr'),
-      await this.$axios.get('http://127.0.0.1:3001/bitcoin'),
+    const [{ data: mstr }, { data: bitcoin }] = [
+      await this.$axios.get<Istock>('mstr'),
+      await this.$axios.get<Iftx>('bitcoin'),
     ]
 
-    this.microstrategyPrice = mstr.data.regularMarketPrice
-    this.bitcoinPrice = bitcoin.data.price
+    this.microstrategyPrice = mstr.regularMarketPrice
+    this.bitcoinPrice = bitcoin.price
   },
   methods: {
     microstrategyDiscount(): number {
