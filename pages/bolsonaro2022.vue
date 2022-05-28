@@ -1,5 +1,6 @@
 <template>
   <div class="main">
+    <div class="spinner" v-if="isLoading"><Spinner name="circle" /></div>
     <h1>Tese de investimento em BOLSONARO2022</h1>
     <div>
       <label for="number">Investimento Inicial em US$</label>
@@ -38,17 +39,20 @@
 <script lang="ts">
 import Vue from 'vue'
 import VueSlider from 'vue-slider-component/src/vue2-slider.vue'
+import Spinner from 'vue-spinkit'
 import { Iftx } from '~/interfaces'
 export default Vue.extend({
   name: 'Bolsonaro',
   components: {
     VueSlider,
+    Spinner,
   },
   data() {
     return {
       precoToken: 0,
       investimentoInicial: 100,
       brzPrice: 0,
+      isLoading: false,
       options: {
         min: 0,
         max: 1,
@@ -58,12 +62,22 @@ export default Vue.extend({
     }
   },
   async mounted() {
-    const [{ data: bolsonaro }, { data: brz }] = [
-      await this.$axios.get<Iftx>('/bolsonaro'),
-      await this.$axios.get<Iftx>('/brz'),
-    ]
-    this.precoToken = bolsonaro.price
-    this.brzPrice = brz.price
+    this.isLoading = true
+    await Promise.all([
+      await this.$axios
+        .get<Iftx>('/bolsonaro')
+        .then(({ data: bolsonaro }) => {
+          this.precoToken = bolsonaro.price
+        })
+        .catch((e) => console.log(e)),
+      await this.$axios
+        .get<Iftx>('/brz')
+        .then(({ data: brz }) => {
+          this.brzPrice = brz.price
+        })
+        .catch((e) => console.log(e)),
+    ])
+    this.isLoading = false
   },
   computed: {
     equivalenteEmBrl(): string {
@@ -99,10 +113,15 @@ export default Vue.extend({
   background: rgb(184, 181, 231);
   box-shadow: 1px 40px 40px hsl(0deg, 0%, 49%);
   border-radius: 5px;
-  padding: 20px
+  padding: 20px;
 }
 
 .cenario2 {
   margin-left: 30px;
+}
+
+.spinner {
+  display: flex;
+  justify-content: center;
 }
 </style>

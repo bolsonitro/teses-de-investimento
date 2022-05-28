@@ -1,5 +1,6 @@
 <template>
   <div class="main">
+    <div class="spinner" v-if="isLoading"><Spinner name="circle" /></div>
     <h1>Tese de investimento em MicroStrategy</h1>
     <p>Preço de MSTR: US$ {{ microstrategyPrice }}</p>
     <div>
@@ -18,9 +19,11 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Spinner from 'vue-spinkit'
 import { Iftx, Istock } from '@/interfaces'
 export default Vue.extend({
   name: 'Microstrategy',
+  components: { Spinner },
   data() {
     return {
       microstrategyPrice: 0,
@@ -28,16 +31,26 @@ export default Vue.extend({
       bitcoinPrice: 0,
       microstrategyShares: 11290000,
       bitcoinValuePerShareInUsd: 0,
+      isLoading: false,
     }
   },
   async mounted() {
-    const [{ data: mstr }, { data: bitcoin }] = [
-      await this.$axios.get<Istock>('mstr'),
-      await this.$axios.get<Iftx>('bitcoin'),
-    ]
-
-    this.microstrategyPrice = mstr.regularMarketPrice
-    this.bitcoinPrice = bitcoin.price
+    this.isLoading = true
+    await Promise.all([
+      await this.$axios
+        .get<Istock>('mstr')
+        .then(({ data: mstr }) => {
+          this.microstrategyPrice = mstr.regularMarketPrice
+        })
+        .catch((e) => console.log(e)),
+      await this.$axios
+        .get<Iftx>('bitcoin')
+        .then(({ data: bitcoin }) => {
+          this.bitcoinPrice = bitcoin.price
+        })
+        .catch((e) => console.log(e)),
+    ])
+    this.isLoading = false
   },
   methods: {
     microstrategyDiscount(): number {
@@ -61,4 +74,8 @@ export default Vue.extend({
 </script>
 
 <style>
+.spinner {
+  display: flex;
+  justify-content: center;
+}
 </style>
