@@ -64,13 +64,13 @@ export default Vue.extend({
   async mounted() {
     this.isLoading = true
     await Promise.all([
-      await this.$axios
+      this.$axios
         .get<Iftx>('/bolsonaro')
         .then(({ data: bolsonaro }) => {
           this.precoToken = bolsonaro.price
         })
         .catch((e) => console.log(e)),
-      await this.$axios
+      this.$axios
         .get<Iftx>('/brz')
         .then(({ data: brz }) => {
           this.brzPrice = brz.price

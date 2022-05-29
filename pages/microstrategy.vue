@@ -37,13 +37,13 @@ export default Vue.extend({
   async mounted() {
     this.isLoading = true
     await Promise.all([
-      await this.$axios
+      this.$axios
         .get<Istock>('mstr')
         .then(({ data: mstr }) => {
           this.microstrategyPrice = mstr.regularMarketPrice
         })
         .catch((e) => console.log(e)),
-      await this.$axios
+      this.$axios
         .get<Iftx>('bitcoin')
         .then(({ data: bitcoin }) => {
           this.bitcoinPrice = bitcoin.price
