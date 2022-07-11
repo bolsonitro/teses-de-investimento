@@ -27,12 +27,23 @@
         <p>Perda de 100%</p>
       </div>
     </div>
-    <p>
-      Token negociado
-      <a href="https://ftx.com/referrals#a=bolsonitrobitcoiner" target="_blank"
-        >aqui</a
-      >
-    </p>
+    <div>
+      <h2>Minha posição</h2>
+      <p>Custo: US$ {{ valorInvestido }} ou R$ {{ valorInvestidoEmBrl }}</p>
+      <p>Perda realizada atual: US$ {{ perdaRealizada }}</p>
+      <p>
+        Collateral usado: US$ {{ collateralUsado }} ou R$
+        {{ collateralUsadoEmBrl }}
+      </p>
+      <p>
+        Ganho potencial: US$ {{ ganhoPotencial }} ou R$
+        {{ ganhoPotencialemBrl }}
+      </p>
+    </div>
+    Token negociado
+    <a href="https://ftx.com/referrals#a=bolsonitrobitcoiner" target="_blank"
+      >aqui</a
+    >
   </div>
 </template>
 
@@ -40,7 +51,7 @@
 import Vue from 'vue'
 import VueSlider from 'vue-slider-component/src/vue2-slider.vue'
 import Spinner from 'vue-spinkit'
-import { Iftx } from '~/interfaces'
+import { Iftx, IPosition } from '~/interfaces'
 export default Vue.extend({
   name: 'Bolsonaro',
   components: {
@@ -59,6 +70,13 @@ export default Vue.extend({
         interval: 0.01,
         width: 300,
       },
+      position: {
+        valorInvestido: 0,
+        size: 0,
+        openPrice: 0,
+        realizedPnl: 0,
+        collateral: 0,
+      },
     }
   },
   async mounted() {
@@ -76,12 +94,28 @@ export default Vue.extend({
           this.brzPrice = brz.price
         })
         .catch((e) => console.log(e)),
+      this.$axios
+        .get<IPosition>('/position')
+        .then(({ data: position }) => {
+          this.position.size = position.size
+          this.position.openPrice = position.recentAverageOpenPrice
+          this.position.valorInvestido =
+            this.position.size * this.position.openPrice
+          this.position.realizedPnl = position.realizedPnl
+          this.position.collateral = position.collateralUsed
+        })
+        .catch((e) => console.log(e)),
     ])
     this.isLoading = false
   },
+  methods: {
+    converterParaBrl(valor: number): number {
+      return valor / this.brzPrice
+    },
+  },
   computed: {
     equivalenteEmBrl(): string {
-      return (this.investimentoInicial / this.brzPrice).toFixed(2)
+      return this.converterParaBrl(this.investimentoInicial).toFixed(2)
     },
     tokensEmHold(): number {
       return this.investimentoInicial / this.precoToken
@@ -94,6 +128,27 @@ export default Vue.extend({
         ((this.retorno - this.investimentoInicial) / this.investimentoInicial) *
         100
       ).toFixed(2)
+    },
+    valorInvestido(): string {
+      return this.position.valorInvestido.toFixed(2)
+    },
+    valorInvestidoEmBrl(): string {
+      return this.converterParaBrl(this.position.valorInvestido).toFixed(2)
+    },
+    perdaRealizada(): string {
+      return this.position.realizedPnl.toFixed(2)
+    },
+    ganhoPotencial(): string {
+      return this.position.size.toFixed(2)
+    },
+    ganhoPotencialemBrl(): string {
+      return this.converterParaBrl(this.position.size).toFixed(2)
+    },
+    collateralUsado(): string {
+      return this.position.collateral.toFixed(2)
+    },
+    collateralUsadoEmBrl(): string {
+      return this.converterParaBrl(this.position.collateral).toFixed(2)
     },
   },
 })

@@ -103,3 +103,27 @@ export interface Istock {
     tradeable: boolean;
     symbol: string;
 }
+
+export interface IPosition {
+    future: string
+    size: number
+    side: string
+    netSize: number
+    longOrderSize: number
+    shortOrderSize: number
+    cost: number
+    entryPrice: number
+    unrealizedPnl: number
+    realizedPnl: number
+    initialMarginRequirement: number
+    maintenanceMarginRequirement: number
+    openSize: number
+    collateralUsed: number
+    estimatedLiquidationPrice: any
+    recentAverageOpenPrice: number
+    recentPnl: number
+    recentBreakEvenPrice: number
+    cumulativeBuySize: number
+    cumulativeSellSize: number
+  }
+  
